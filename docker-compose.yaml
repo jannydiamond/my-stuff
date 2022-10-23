@@ -1,0 +1,96 @@
+version: '3.9'
+
+services:
+  caddy:
+    image: caddy:2.5.1-alpine
+    container_name: mystuff_proxy
+    security_opt:
+      - no-new-privileges
+    cap_drop:
+      - NET_ADMIN
+      - SYS_ADMIN
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./docker/development/proxy/Caddyfile:/etc/caddy/Caddyfile
+      - ./docker/development/proxy/caddy_data:/data
+      - ./docker/development/proxy/caddy_config:/config
+    networks:
+      - caddy
+
+  db:
+    image: postgres:14.2-alpine
+    container_name: mystuff_db
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_PASSWORD: mystuff
+      POSTGRES_USER: mystuff
+      POSTGRES_DB: mystuff
+    volumes:
+      - ./docker/development/postgres/data/:/var/lib/postgresql/data/
+      - ./src/server/database/sql/init.sql:/docker-entrypoint-initdb.d/initDB.sql
+
+    networks:
+      - backend
+      - default # so we can access/inspect the db from the host system
+
+  server:
+    image: mystuff-server
+    container_name: mystuff_server
+    build:
+      context: ./
+      dockerfile: docker/development/server/Dockerfile
+
+    environment:
+      NODE_ENV: development
+      POSTGRES_PASSWORD: mystuff
+      POSTGRES_USER: mystuff
+      POSTGRES_DB: mystuff
+
+    security_opt:
+      - no-new-privileges
+      
+    cap_drop:
+      - NET_ADMIN
+      - SYS_ADMIN
+
+    depends_on:
+      - db
+
+    networks:
+      - backend
+      - caddy
+
+    volumes:
+      - ./src/server:/server/src
+      - ./buildServer.js:/server/buildServer.js
+  
+  client:
+    image: mystuff-client
+    container_name: mystuff_client
+    build:
+      context: ./
+      dockerfile: docker/development/client/Dockerfile
+
+    environment:
+      NODE_ENV: development
+
+    security_opt:
+      - no-new-privileges
+
+    cap_drop:
+      - NET_ADMIN
+      - SYS_ADMIN
+
+    networks:
+      - caddy
+
+    volumes:
+      - ./:/app
+
+networks:
+  backend:
+    internal: true
+  caddy:

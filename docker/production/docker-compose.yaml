@@ -1,0 +1,100 @@
+version: '3.9'
+
+services:
+  caddy:
+    image: caddy:2.5.1-alpine
+    container_name: mystuff_proxy
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges
+    cap_drop:
+      - NET_ADMIN
+      - SYS_ADMIN
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./proxy/Caddyfile:/etc/caddy/Caddyfile
+      - ./proxy/caddy_data:/data
+      - ./proxy/caddy_config:/config
+    networks:
+      - caddy
+
+  db:
+    image: postgres:14.2-alpine
+    container_name: mystuff_db
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_PASSWORD: $POSTGRES_PASSWORD
+      POSTGRES_USER: $POSTGRES_USER
+      POSTGRES_DB: $POSTGRES_DB
+    volumes:
+      - ./postgres/data/:/var/lib/postgresql/data/
+      - ../../src/server/database/sql/init.sql:/docker-entrypoint-initdb.d/initDB.sql
+    networks:
+      - backend
+      - default
+
+  server:
+    image: mystuff-server
+    container_name: mystuff_server
+    restart: unless-stopped
+
+    security_opt:
+      - no-new-privileges
+      
+    cap_drop:
+      - NET_ADMIN
+      - SYS_ADMIN
+
+    build:
+      context: ../../
+      dockerfile: docker/production/server/Dockerfile
+
+    environment:
+      NODE_ENV: production
+      POSTGRES_PASSWORD: $POSTGRES_PASSWORD
+      POSTGRES_USER: $POSTGRES_USER
+      POSTGRES_DB: $POSTGRES_DB
+      TOKEN_SECRET: $TOKEN_SECRET
+
+    depends_on:
+      - db
+
+    networks:
+      - backend
+      - caddy
+
+  client:
+    image: mystuff-client
+    container_name: mystuff_client
+    restart: unless-stopped
+
+    build:
+      context: ../../
+      dockerfile: docker/production/client/Dockerfile
+
+    security_opt:
+      - no-new-privileges
+
+    cap_drop:
+      - NET_ADMIN
+      - SYS_ADMIN
+
+    environment:
+      NODE_ENV: production
+
+    networks:
+      - caddy
+
+    volumes:
+      - ./client/Caddyfile:/etc/caddy/Caddyfile
+      - ./client/caddy_data:/data
+      - ./client/caddy_config:/config
+
+networks:
+  backend:
+    internal: true
+  caddy:

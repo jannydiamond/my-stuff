@@ -1,0 +1,11 @@
+mystuff.janett-salzmann.de
+
+# Client dev server
+handle /* {
+  reverse_proxy client:80
+}
+
+# Regular API
+handle /api/* {
+  reverse_proxy server:8080
+}
