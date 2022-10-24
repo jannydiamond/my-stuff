@@ -9,7 +9,7 @@ import {
 import PrivateRoute from './App/PrivateRoute'
 import Login from './Pages/Login'
 import Registration from './Pages/Registration'
-import Home from './Pages/Home'
+import InventoryLists from './Pages/InventoryLists'
 import Header from './components/Header'
 import Main from './components/__styled__/Main'
 
@@ -31,8 +31,8 @@ const Routes = () => {
           </PrivateRoute>
         }
       >
-        <Route path="/" element={<Navigate to="/home" replace />} />
-        <Route path="/home" element={<Home />} />
+        <Route path="/" element={<Navigate to="/inventory-lists" replace />} />
+        <Route path="/inventory-lists" element={<InventoryLists />} />
       </Route>
     </ReactRouterRoutes>
   )

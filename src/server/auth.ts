@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express'
 import jwt from 'jsonwebtoken'
 import { MyStuffUser } from '../model/types'
 
-export const TOKEN_SECRET = process.env.TOKEN_SECRET ?? 'foodplanner'
+export const TOKEN_SECRET = process.env.TOKEN_SECRET ?? 'mystuff'
 
 export const generateAccessToken = (user: Pick<MyStuffUser, 'id' | 'username'>) => {
   return jwt.sign({ user: user }, TOKEN_SECRET, {
@@ -23,6 +23,9 @@ export const verifyToken: any = (
     res.send('Unauthorized!')
     return
   }
+
+  console.log(token)
+  console.log(TOKEN_SECRET)
 
   jwt.verify(token as string, TOKEN_SECRET as string, (err: any, user: any) => {
     if (err) {

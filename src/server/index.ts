@@ -2,6 +2,8 @@ import express, { Express } from 'express'
 import helmet from 'helmet'
 import cors from 'cors'
 import authRouter from './routes/auth'
+import inventoryListsRouter from './routes/inventoryLists'
+import usersRouter from './routes/users'
 
 const app: Express = express()
 
@@ -23,6 +25,8 @@ app.use(
 )
 
 app.use(`${basePath}`, authRouter)
+app.use(`${basePath}/users`, usersRouter)
+app.use(`${basePath}/inventory-lists`, inventoryListsRouter)
 
 app.listen(port, hostname, () => {
   console.log(`Server running at http://${hostname}:${port}/`)

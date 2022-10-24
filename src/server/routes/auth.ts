@@ -91,6 +91,8 @@ authRouter.post(
       username: existingUser.username,
     })
 
+    console.log(token)
+
     res.status(200).json(token)
   }
 )

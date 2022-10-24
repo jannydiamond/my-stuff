@@ -5,8 +5,8 @@ import NavWrapper from './__styled__/NavWrapper'
 const Navigation = () => {
   return (
     <NavWrapper>
-      <NavLink to="home">
-        <span>Home</span>
+      <NavLink to="inventory_lists">
+        <span>All</span>
       </NavLink>
     </NavWrapper>
   )

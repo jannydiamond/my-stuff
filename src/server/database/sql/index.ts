@@ -26,3 +26,10 @@ export const myStuffUsers = {
   findById: sql('myStuffUsers/findById.sql'),
   findByName: sql('myStuffUsers/findByName.sql'),
 }
+
+export const inventoryLists = {
+  empty: sql('inventoryLists/empty.sql'),
+  remove: sql('inventoryLists/remove.sql'),
+  selectAll: sql('inventoryLists/selectAll.sql'),
+  findById: sql('inventoryLists/findById.sql'),
+}
